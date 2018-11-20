@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Xc图片缩放拖拽插件</title>
+    <style type="text/css">
+    .img-wrap {
+        width: 800px;
+        height: 400px;
+        line-height: 400px;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #ddd;
+        margin: 100px auto;
+        overflow: hidden;
+    }
+
+    .img-wrap img {
+        max-width: 100%;
+        max-height: 100%;
+        vertical-align: middle;
+        transition-property: transform;
+        transition: 0.5s linear;
+        transform: scale(1);
+        transform-origin: 50% 50%;
+        cursor: move;
+    }
+    </style>
+</head>
+<body>
+    <!--前提：1.图片已经在容器内水平垂直居中了; 2.图片初始化的scale为1; 3.图片的transform-origin是中间点; -->
+    <div class="img-wrap">
+        <img id="img" src="./img/img.jpg" alt="">
+    </div>
+
+<script src="./imgZoom.js"></script>
+<script>
+const MAX_SCALE = 2;
+const MIN_SCALE = 1;
+const SCALE_PER_WHEEL = 0.25;
+
+var $img = document.getElementById('img');
+new ImgZoom($img, {
+    MAX_SCALE: 5,
+    MIN_SCALE: 0.5
+});
+
+
+</script>
+</body>
+</html>

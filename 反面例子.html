@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style type="text/css">
+    .img-wrap {
+        width: 600px;
+        height: 400px;
+        line-height: 400px;
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #ddd;
+    }
+
+    .img-wrap img {
+        max-width: 100%;
+        max-height: 100%;
+        vertical-align: middle;
+        transition-property: transform;
+        transition: 0.5s linear;
+        transform: scale(1);
+        transform-origin: 50% 50%;
+    }
+    </style>
+</head>
+<body>
+    <div class="img-wrap">
+        <img id="img" src="./img/img.jpg" alt="">
+    </div>
+
+<script>
+const MAX_SCALE = 2;
+const MIN_SCALE = 0.25;
+const SCALE_PER_WHEEL = 0.25;
+
+var $img = document.getElementById('img');
+$img.addEventListener('mousewheel', mousewheelCb);
+
+function proxyMouseWheel() {
+    var timer = null;
+    var isLock = false;
+    return function(e) {
+        if(isLock && !timer) {
+            timer = setTimeout(function() {
+                isLock = false;
+                timer = null;
+                //mousewheelCb(e)
+            }, 300)
+        } else if(!isLock){
+            isLock = true;
+            mousewheelCb(e)
+        }
+        
+    }
+}
+
+/**
+ * @desc 鼠标滚轮事件回调
+ */
+function mousewheelCb(e) {
+    console.error('mousewheel')
+    var curScale =  $img.style.transform.match(/scale\((.*?)\)/) && $img.style.transform.match(/scale\((.*?)\)/)[1] || 1;
+    var addTranslateRate = 0;
+
+    curScale = parseFloat(curScale);
+    console.log(`curScale=${curScale}`);
+
+    
+    if(e.wheelDelta > 0) {
+        curScale += SCALE_PER_WHEEL;
+        addTranslateRate = (curScale-SCALE_PER_WHEEL)/curScale;
+    } else {
+        curScale -= SCALE_PER_WHEEL;
+        addTranslateRate = (curScale+SCALE_PER_WHEEL)/curScale;
+    }
+    if(curScale >= MAX_SCALE) return;
+    if(curScale <= MIN_SCALE) return;
+    
+
+    var value = $img.style.transform && $img.style.transform.replace(/scale\((.*)\)/, 'scale('+curScale+')') || 'scale('+curScale+')';
+    var translateRes = getTranslate($img);
+    
+    //(e.target.offsetWidth/2 - e.offsetX)*SCALE_PER_WHEEL/curScale + translateRes.x * addTranslateRate;
+    var translateX = (e.wheelDelta > 0 ? 1 : -1)* (e.target.offsetWidth/2 - e.offsetX)*SCALE_PER_WHEEL/curScale + translateRes.x * addTranslateRate;
+    var translateY = (e.wheelDelta > 0 ? 1 : -1)* (e.target.offsetHeight/2 - e.offsetY)*SCALE_PER_WHEEL/curScale + translateRes.y * addTranslateRate;
+
+    // var translateX = (e.target.offsetWidth/2 - e.offsetX)/curScale + translateRes.x;
+    // var translateY = (e.target.offsetHeight/2 - e.offsetY)/curScale + translateRes.y;
+
+    value += ` translate(${translateX}px, ${translateY}px)`;
+    //finally give value
+    $img.style.transform = value;
+
+}
+
+/**
+ * @desc 获取一个element对象的translateX和translateY
+ * @param {DOM ELEMENT} dom
+ * @return {Object} {x: xxx, y: xxx}
+ */
+function getTranslate(dom) {
+    var result = {
+        x: 0,
+        y: 0
+    }
+    var reg = /translate\((.*)\)/;
+    var matchRes = dom.style.transform.match(reg);
+
+    if(matchRes && matchRes[1]) {
+        var splitRes = matchRes[1].split(',');
+        result.x = parseFloat(splitRes[0].replace('px', ''));
+        result.y = parseFloat(splitRes[1].trim().replace('px', ''));
+
+    }
+    return result;
+}
+</script>
+</body>
+</html>
